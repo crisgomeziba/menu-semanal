@@ -453,6 +453,18 @@
       updateMacrosPreview();
     });
 
+    // Lista de la compra
+    if (typeof ShoppingList !== "undefined") {
+      ShoppingList.init({
+        getRange: () => {
+          const { monday, sunday } = currentWeekRange();
+          return { desde: isoDate(monday), hasta: isoDate(sunday) };
+        },
+        getItems: () => state.items,
+        online: () => state.online,
+      });
+    }
+
     await render();
   }
 

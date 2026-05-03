@@ -25,6 +25,7 @@ const API = (function () {
     probe,
     listAlimentos:   (q)        => req(`/api/alimentos${q ? `?q=${encodeURIComponent(q)}` : ""}`),
     getMenu:         (desde, hasta) => req(`/api/menu?desde=${desde}&hasta=${hasta}`),
+    getCompras:      (desde, hasta) => req(`/api/compras?desde=${desde}&hasta=${hasta}`),
     addItem:         (data)     => req("/api/menu", { method: "POST", body: JSON.stringify(data) }),
     updateItem:      (id, data) => req(`/api/menu/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     deleteItem:      (id)       => req(`/api/menu/${id}`, { method: "DELETE" }),
