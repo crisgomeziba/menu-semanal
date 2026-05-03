@@ -161,6 +161,60 @@ def get_menu(desde: str, hasta: str):
         return result
 
 
+@app.get("/api/compras")
+def get_compras(desde: str, hasta: str):
+    """Lista de la compra agregada por alimento, agrupada por categoría.
+
+    Suma cantidad_g por alimento dentro del rango de fechas, ordenada por
+    categoría y nombre. Devuelve también las recetas (comidas) en que aparece
+    cada alimento, útil para mostrar el origen al usuario.
+    """
+    with cursor() as conn:
+        rows = conn.execute("""
+            SELECT
+              a.id           AS alimento_id,
+              a.nombre,
+              a.categoria,
+              a.emoji,
+              SUM(mi.cantidad_g)                     AS total_g,
+              COUNT(mi.id)                           AS apariciones,
+              GROUP_CONCAT(DISTINCT mi.fecha)        AS fechas,
+              GROUP_CONCAT(DISTINCT mi.comida)       AS comidas
+            FROM menu_items mi
+            JOIN alimentos a ON a.id = mi.alimento_id
+            WHERE mi.fecha BETWEEN ? AND ?
+            GROUP BY a.id
+            ORDER BY a.categoria, a.nombre
+        """, (desde, hasta)).fetchall()
+
+        # Agrupar por categoría
+        grupos = {}
+        for r in rows:
+            cat = r["categoria"] or "otros"
+            if cat not in grupos:
+                grupos[cat] = []
+            grupos[cat].append({
+                "alimento_id": r["alimento_id"],
+                "nombre": r["nombre"],
+                "categoria": cat,
+                "emoji": r["emoji"],
+                "total_g": round(r["total_g"], 1),
+                "apariciones": r["apariciones"],
+                "fechas": r["fechas"].split(",") if r["fechas"] else [],
+                "comidas": r["comidas"].split(",") if r["comidas"] else [],
+            })
+
+        return {
+            "desde": desde,
+            "hasta": hasta,
+            "total_alimentos": len(rows),
+            "grupos": [
+                {"categoria": cat, "items": items}
+                for cat, items in grupos.items()
+            ],
+        }
+
+
 @app.post("/api/menu")
 def add_menu_item(payload: MenuItemCreate):
     with cursor() as conn:

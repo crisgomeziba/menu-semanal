@@ -60,6 +60,7 @@ o borra `backend/menu.db` y reinicia.
 | POST   | `/api/menu`                   | añadir item                       |
 | PUT    | `/api/menu/{id}`              | editar cantidad o alimento        |
 | DELETE | `/api/menu/{id}`              | eliminar item                     |
+| GET    | `/api/compras?desde=&hasta=`  | lista de compra agregada por alimento+categoría |
 | POST   | `/api/seed/reset`             | recargar seed                     |
 
 Docs interactivas: http://localhost:8000/docs
@@ -77,9 +78,21 @@ Las macros se calculan al vuelo: `(cantidad_g / porcion_g) × valor_macro`.
 - Frontend: HTML + CSS + JS vanilla. Sin build step. Inter font vía CDN.
 - Sin Docker (todo nativo). Si más adelante quieres dockerizar, está pensado para que sea trivial.
 
+## Features
+
+### Lista de la compra
+Botón "Lista de la compra" en la topbar abre un drawer con los alimentos de la semana **agregados** y agrupados por categoría:
+
+- Suma `cantidad_g` por alimento entre todas las comidas de la semana visible
+- Categorías de supermercado (verduras, frutas, proteína, lácteos, cereales, etc.)
+- Cada item muestra apariciones y comidas en que aparece (trazabilidad)
+- Marcar como comprado: opacidad + tachado + se mueve al final
+- Persistencia de checks en `localStorage` (clave por rango de fechas)
+- Botón "Copiar lista" exporta a portapapeles en formato Markdown
+- Modo offline (Pages): agrega localmente desde los datos de muestra
+
 ## Roadmap sugerido
 
-- [ ] Lista de la compra auto-generada (suma `cantidad_g` por alimento de la semana)
 - [ ] Objetivos diarios (kcal/macros) y barras de progreso
 - [ ] Plantillas reutilizables (copiar semana, duplicar día)
 - [ ] Importar/exportar JSON
